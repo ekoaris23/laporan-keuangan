@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Keuangan Usaha</title>
-    <!-- Pemanggilan style.css versi 7.0 -->
-    <link rel="stylesheet" href="./style.css?v=7.0">
+    <!-- Pemanggilan style.css versi 8.0 -->
+    <link rel="stylesheet" href="./style.css?v=8.0">
 </head>
 <body>
     <header>
@@ -36,7 +36,14 @@
             
             <div id="ringkasan-kas"></div>
 
-            <div class="box-warning">
+            <!-- Box Peringatan Pengeluaran Rutin -->
+            <div class="box-warning" style="margin-top: 20px;">
+                <h3>Peringatan / Jadwal Pengeluaran Rutin</h3>
+                <div id="peringatan-rutin"></div>
+            </div>
+
+            <!-- Box Peringatan Jatuh Tempo Hutang -->
+            <div class="box-warning" style="margin-top: 20px;">
                 <h3>Peringatan Jatuh Tempo Hutang</h3>
                 <div id="peringatan-jatuh-tempo"></div>
             </div>
@@ -86,7 +93,7 @@
             </div>
         </section>
 
-        <!-- Tab Pengeluaran Umum / Belanja -->
+        <!-- Tab Pengeluaran Umum -->
         <section id="pengeluaran-tab" class="tab-content">
             <h2>Input Pengeluaran Umum / Belanja</h2>
             <form id="form-pengeluaran" onsubmit="tambahPengeluaran(event)">
@@ -137,7 +144,7 @@
             <h2>Pengeluaran Rutin (Gaji, Bensin, Operasional)</h2>
             <form id="form-rutin" onsubmit="tambahRutin(event)">
                 <div class="form-group">
-                    <label for="rutin-tgl">Tanggal Pembayaran</label>
+                    <label for="rutin-tgl">Tanggal Pembayaran / Jadwal</label>
                     <input type="date" id="rutin-tgl" required>
                 </div>
                 <div class="form-group">
@@ -258,7 +265,7 @@
         </section>
     </main>
 
-    <!-- Pemanggilan app.js versi 7.0 untuk memastikan fungsi simpan terbaca -->
-    <script src="./app.js?v=7.0"></script>
+    <!-- Pemanggilan app.js versi 8.0 -->
+    <script src="./app.js?v=8.0"></script>
 </body>
 </html>
