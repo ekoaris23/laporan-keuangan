@@ -1,4 +1,4 @@
-// Struktur Data Utama (termasuk array pengeluaranRutin)
+// Struktur Data Utama
 let dataKeuangan = JSON.parse(localStorage.getItem('DATA_KEUANGAN')) || {
     pemasukan: [],
     pengeluaran: [],
@@ -6,11 +6,8 @@ let dataKeuangan = JSON.parse(localStorage.getItem('DATA_KEUANGAN')) || {
     hutang: []
 };
 
-if (!dataKeuangan.pengeluaranRutin) {
-    dataKeuangan.pengeluaranRutin = [];
-}
+if (!dataKeuangan.pengeluaranRutin) dataKeuangan.pengeluaranRutin = [];
 
-// Penanda ID untuk mode Edit
 let editHutangId = null;
 let editRutinId = null;
 
@@ -33,7 +30,7 @@ function switchTab(tabName) {
     }
 }
 
-const formatRp = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
+const formatRp = (num) => 'Rp ' + Math.round(Number(num)).toLocaleString('id-ID');
 
 // --- PROSES INPUT / EDIT DATA ---
 
@@ -67,7 +64,6 @@ function tambahPengeluaran(e) {
     alert('Pengeluaran berhasil disimpan!');
 }
 
-// Tambah / Update Pengeluaran Rutin
 function tambahRutin(e) {
     e.preventDefault();
     const tgl = document.getElementById('rutin-tgl').value;
@@ -79,17 +75,13 @@ function tambahRutin(e) {
     if (editRutinId !== null) {
         const idx = dataKeuangan.pengeluaranRutin.findIndex(r => r.id === editRutinId);
         if (idx !== -1) {
-            dataKeuangan.pengeluaranRutin[idx] = {
-                ...dataKeuangan.pengeluaranRutin[idx],
-                tgl, unit, periode, ket, jumlah
-            };
+            dataKeuangan.pengeluaranRutin[idx] = { ...dataKeuangan.pengeluaranRutin[idx], tgl, unit, periode, ket, jumlah };
         }
         editRutinId = null;
         document.querySelector('#form-rutin button[type="submit"]').textContent = 'Simpan Pengeluaran Rutin';
         alert('Pengeluaran Rutin berhasil diperbarui!');
     } else {
-        const item = { id: Date.now(), tgl, unit, periode, ket, jumlah };
-        dataKeuangan.pengeluaranRutin.push(item);
+        dataKeuangan.pengeluaranRutin.push({ id: Date.now(), tgl, unit, periode, ket, jumlah });
         alert('Pengeluaran Rutin berhasil disimpan!');
     }
 
@@ -97,7 +89,6 @@ function tambahRutin(e) {
     simpanData();
 }
 
-// Edit Pengeluaran Rutin
 function editRutin(id) {
     const item = dataKeuangan.pengeluaranRutin.find(r => r.id === id);
     if (!item) return;
@@ -110,8 +101,31 @@ function editRutin(id) {
 
     editRutinId = id;
     document.querySelector('#form-rutin button[type="submit"]').textContent = 'Update Pengeluaran Rutin';
-
     document.getElementById('form-rutin').scrollIntoView({ behavior: 'smooth' });
+}
+
+// --- LOGIKA HUTANG & SKEMA ANGSRAN ---
+
+function buatJadwalAngsuran(tglMulai, tenor, jenis, cicilan) {
+    let jadwal = [];
+    let tgl = new Date(tglMulai);
+
+    for (let i = 1; i <= tenor; i++) {
+        let tglFormat = tgl.toISOString().split('T')[0];
+        jadwal.push({
+            no: i,
+            tglTempo: tglFormat,
+            jumlah: cicilan,
+            status: 'Belum'
+        });
+
+        if (jenis === 'harian') {
+            tgl.setDate(tgl.getDate() + 1);
+        } else {
+            tgl.setMonth(tgl.getMonth() + 1);
+        }
+    }
+    return jadwal;
 }
 
 function tambahHutang(e) {
@@ -121,6 +135,7 @@ function tambahHutang(e) {
     const tenor = Number(document.getElementById('hut-tenor').value);
     const persenBunga = Number(document.getElementById('hut-bunga').value) || 0;
     const periodeBunga = document.getElementById('hut-periode-bunga').value; 
+    const tglMulai = document.getElementById('hut-tempo').value;
 
     let totalBunga = 0;
     if (periodeBunga === 'hari') {
@@ -136,6 +151,7 @@ function tambahHutang(e) {
 
     const totalBayar = pokok + totalBunga;
     const cicilanPerPeriode = totalBayar / tenor;
+    const rincianAngsuran = buatJadwalAngsuran(tglMulai, tenor, jenis, cicilanPerPeriode);
 
     if (editHutangId !== null) {
         const idx = dataKeuangan.hutang.findIndex(h => h.id === editHutangId);
@@ -143,14 +159,11 @@ function tambahHutang(e) {
             dataKeuangan.hutang[idx] = {
                 ...dataKeuangan.hutang[idx],
                 nama: document.getElementById('hut-nama').value,
-                pokok: pokok,
-                jenis: jenis,
-                tenor: tenor,
-                persenBunga: persenBunga,
-                periodeBunga: periodeBunga,
+                pokok, jenis, tenor, persenBunga, periodeBunga,
                 cicilan: cicilanPerPeriode,
-                totalBayar: totalBayar,
-                jatuhTempo: document.getElementById('hut-tempo').value
+                totalBayar,
+                jatuhTempo: tglMulai,
+                rincian: rincianAngsuran
             };
         }
         editHutangId = null;
@@ -160,15 +173,12 @@ function tambahHutang(e) {
         const item = {
             id: Date.now(),
             nama: document.getElementById('hut-nama').value,
-            pokok: pokok,
-            jenis: jenis,
-            tenor: tenor,
-            persenBunga: persenBunga,
-            periodeBunga: periodeBunga,
+            pokok, jenis, tenor, persenBunga, periodeBunga,
             cicilan: cicilanPerPeriode,
-            totalBayar: totalBayar,
-            jatuhTempo: document.getElementById('hut-tempo').value,
-            status: 'Belum Lunas'
+            totalBayar,
+            jatuhTempo: tglMulai,
+            status: 'Belum Lunas',
+            rincian: rincianAngsuran
         };
         dataKeuangan.hutang.push(item);
         alert('Pencatatan Hutang Berhasil!');
@@ -176,6 +186,28 @@ function tambahHutang(e) {
 
     document.getElementById('form-hutang').reset();
     simpanData();
+}
+
+function bayarAngsuran(idHutang, noAngsuran) {
+    const hutang = dataKeuangan.hutang.find(h => h.id === idHutang);
+    if (!hutang || !hutang.rincian) return;
+
+    const itemAngsuran = hutang.rincian.find(r => r.no === noAngsuran);
+    if (itemAngsuran) {
+        itemAngsuran.status = itemAngsuran.status === 'Lunas' ? 'Belum' : 'Lunas';
+
+        // Cek apakah semua angsuran lunas
+        const semuaLunas = hutang.rincian.every(r => r.status === 'Lunas');
+        hutang.status = semuaLunas ? 'LUNAS' : 'Belum Lunas';
+
+        // Update tanggal jatuh tempo terdekat yang belum lunas
+        const angsuranBelum = hutang.rincian.find(r => r.status === 'Belum');
+        if (angsuranBelum) {
+            hutang.jatuhTempo = angsuranBelum.tglTempo;
+        }
+
+        simpanData();
+    }
 }
 
 function editHutang(id) {
@@ -192,7 +224,6 @@ function editHutang(id) {
 
     editHutangId = id;
     document.querySelector('#form-hutang button[type="submit"]').textContent = 'Update Data Hutang';
-
     document.getElementById('form-hutang').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -207,11 +238,21 @@ function ubahStatusHutang(id) {
     const hutang = dataKeuangan.hutang.find(h => h.id === id);
     if (hutang) {
         hutang.status = hutang.status === 'Belum Lunas' ? 'LUNAS' : 'Belum Lunas';
+        if (hutang.rincian) {
+            hutang.rincian.forEach(r => r.status = hutang.status === 'LUNAS' ? 'Lunas' : 'Belum');
+        }
         simpanData();
     }
 }
 
-// --- DASHBOARD & RENDER TABEL ---
+function toggleRincian(id) {
+    const el = document.getElementById(`rincian-${id}`);
+    if (el) {
+        el.style.display = el.style.display === 'none' ? 'table-row' : 'none';
+    }
+}
+
+// --- RENDER DASHBOARD & TABEL ---
 
 function renderDashboard() {
     const unitFilter = document.getElementById('filter-usaha').value;
@@ -221,26 +262,25 @@ function renderDashboard() {
     let totalHutangBelumLunas = 0;
 
     dataKeuangan.pemasukan.forEach(item => {
-        if (unitFilter === 'semua' || item.unit === unitFilter) {
-            totalPemasukan += item.jumlah;
-        }
+        if (unitFilter === 'semua' || item.unit === unitFilter) totalPemasukan += item.jumlah;
     });
 
     dataKeuangan.pengeluaran.forEach(item => {
-        if (unitFilter === 'semua' || item.unit === unitFilter) {
-            totalPengeluaran += item.jumlah;
-        }
+        if (unitFilter === 'semua' || item.unit === unitFilter) totalPengeluaran += item.jumlah;
     });
 
     dataKeuangan.pengeluaranRutin.forEach(item => {
-        if (unitFilter === 'semua' || item.unit === unitFilter) {
-            totalPengeluaran += item.jumlah;
-        }
+        if (unitFilter === 'semua' || item.unit === unitFilter) totalPengeluaran += item.jumlah;
     });
 
     dataKeuangan.hutang.forEach(item => {
         if (item.status === 'Belum Lunas') {
-            totalHutangBelumLunas += item.totalBayar;
+            if (item.rincian) {
+                const sisa = item.rincian.filter(r => r.status === 'Belum').reduce((a, b) => a + b.jumlah, 0);
+                totalHutangBelumLunas += sisa;
+            } else {
+                totalHutangBelumLunas += item.totalBayar;
+            }
         }
     });
 
@@ -274,7 +314,6 @@ function renderDashboard() {
     renderWarningJatuhTempo();
 }
 
-// Render Peringatan Pengeluaran Rutin di Dashboard
 function renderWarningRutin() {
     const container = document.getElementById('peringatan-rutin');
     if (!container) return;
@@ -286,7 +325,6 @@ function renderWarningRutin() {
         return;
     }
 
-    // Urutkan jadwal pengeluaran rutin terdekat
     rutinList.sort((a, b) => new Date(a.tgl) - new Date(b.tgl));
 
     const hariIni = new Date();
@@ -382,12 +420,22 @@ function renderWarningJatuhTempo() {
             badgePeringatan = `✅ [JATUH TEMPO ${selisihHari} HARI LAGI]`;
         }
 
+        // Cari angsuran aktif saat ini
+        let noAngsuranAktif = 1;
+        if (h.rincian) {
+            const angsuranBelum = h.rincian.find(r => r.status === 'Belum');
+            if (angsuranBelum) noAngsuranAktif = angsuranBelum.no;
+        }
+
         html += `<li class="${statusClass}">
             <div>
                 <strong>${h.nama}</strong> - Angsuran ${formatRp(h.cicilan)} / ${h.jenis} 
                 (Jatuh Tempo: Tgl ${h.jatuhTempo})
             </div>
-            <span class="badge">${badgePeringatan}</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="badge">${badgePeringatan}</span>
+                ${h.rincian ? `<button class="btn-bayar-sekarang" onclick="bayarAngsuran(${h.id}, ${noAngsuranAktif})">BAYAR SEKARANG</button>` : ''}
+            </div>
         </li>`;
     });
 
@@ -444,9 +492,20 @@ function renderTabelRutin() {
 function renderTabelHutang() {
     const tbody = document.getElementById('tb-hutang');
     if (!tbody) return;
-    tbody.innerHTML = dataKeuangan.hutang.map(h => `
+    
+    let html = '';
+    dataKeuangan.hutang.forEach(h => {
+        // Jika belum ada rincian (data lama), generate otomatis
+        if (!h.rincian) {
+            h.rincian = buatJadwalAngsuran(h.jatuhTempo, h.tenor, h.jenis, h.cicilan);
+        }
+
+        html += `
         <tr>
-            <td><strong>${h.nama}</strong></td>
+            <td>
+                <strong>${h.nama}</strong><br>
+                <button class="btn-dropdown" onclick="toggleRincian(${h.id})">▼ Rincian Angsuran</button>
+            </td>
             <td>${formatRp(h.pokok)}</td>
             <td>${h.tenor}x (${h.jenis})</td>
             <td>${h.persenBunga}% /${h.periodeBunga}</td>
@@ -459,7 +518,49 @@ function renderTabelHutang() {
                 <button class="btn-hapus" onclick="hapusItem('hutang', ${h.id})">Hapus</button>
             </td>
         </tr>
-    `).join('');
+        <!-- Row Dropdown Rincian -->
+        <tr id="rincian-${h.id}" style="display: none; background-color: #f8fafc;">
+            <td colspan="9">
+                <div class="box-rincian">
+                    <h4>Rincian Angsuran Berkala: ${h.nama}</h4>
+                    <table class="tabel-rincian">
+                        <thead>
+                            <tr>
+                                <th>Angsuran Ke</th>
+                                <th>Jatuh Tempo</th>
+                                <th>Jumlah Tagihan</th>
+                                <th>Status Pembayaran</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${h.rincian.map(r => `
+                                <tr>
+                                    <td>Angsuran ${r.no} dari ${h.tenor}</td>
+                                    <td>Tgl ${r.tglTempo}</td>
+                                    <td>${formatRp(r.jumlah)}</td>
+                                    <td>
+                                        ${r.status === 'Lunas' 
+                                            ? '<span class="status-lunas">✅ LUNAS</span>' 
+                                            : '<span class="status-belum">❌ BELUM LUNAS</span>'}
+                                    </td>
+                                    <td>
+                                        <button class="${r.status === 'Lunas' ? 'btn-batal-bayar' : 'btn-bayar-sekarang'}" 
+                                                onclick="bayarAngsuran(${h.id}, ${r.no})">
+                                            ${r.status === 'Lunas' ? 'Batal Bayar' : 'Bayar Angsuran'}
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        `;
+    });
+
+    tbody.innerHTML = html;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
