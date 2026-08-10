@@ -227,23 +227,60 @@ function renderWarningJatuhTempo() {
     const container = document.getElementById('peringatan-jatuh-tempo');
     if (!container) return;
 
-    const hariIni = new Date().toISOString().split('T')[0];
-    const hutangMendekati = dataKeuangan.hutang.filter(h => h.status === 'Belum Lunas');
+    let hutangAktif = dataKeuangan.hutang.filter(h => h.status === 'Belum Lunas');
 
-    if (hutangMendekati.length === 0) {
-        container.innerHTML = '<p class="text-aman">Tidak ada hutang aktif saat ini.</p>';
+    if (hutangAktif.length === 0) {
+        container.innerHTML = '<p class="text-aman">TIDAK ADA HUTANG AKTIF SAAT INI.</p>';
         return;
     }
 
-    let html = '<ul>';
-    hutangMendekati.forEach(h => {
-        const isLewat = h.jatuhTempo < hariIni;
-        const statusClass = isLewat ? 'text-bahaya' : 'text-peringatan';
+    // Urutkan dari tanggal jatuh tempo paling dekat/cepat
+    hutangAktif.sort((a, b) => new Date(a.jatuhTempo) - new Date(b.jatuhTempo));
+
+    const hariIni = new Date();
+    hariIni.setHours(0, 0, 0, 0);
+
+    let html = '<ul class="list-peringatan">';
+
+    hutangAktif.forEach(h => {
+        const tglTempo = new Date(h.jatuhTempo);
+        tglTempo.setHours(0, 0, 0, 0);
+
+        const selisihWaktu = tglTempo - hariIni;
+        const selisihHari = Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24));
+
+        let statusClass = '';
+        let badgePeringatan = '';
+
+        if (selisihHari < 0) {
+            statusClass = 'status-merah';
+            badgePeringatan = `🚨 [JATUH TEMPO LEWAT ${Math.abs(selisihHari)} HARI]`;
+        } else if (selisihHari === 0) {
+            statusClass = 'status-merah';
+            badgePeringatan = '⚠️ [JATUH TEMPO HARI INI]';
+        } else if (selisihHari <= 3) {
+            statusClass = 'status-merah';
+            badgePeringatan = `⚠️ [JATUH TEMPO ${selisihHari} HARI LAGI]`;
+        } else if (selisihHari <= 7) {
+            statusClass = 'status-merah';
+            badgePeringatan = '⚠️ [JATUH TEMPO SEMINGGU LAGI]';
+        } else if (selisihHari <= 15) {
+            statusClass = 'status-kuning';
+            badgePeringatan = `⌛ [JATUH TEMPO ${selisihHari} HARI LAGI]`;
+        } else {
+            statusClass = 'status-hijau';
+            badgePeringatan = `✅ [JATUH TEMPO ${selisihHari} HARI LAGI]`;
+        }
+
         html += `<li class="${statusClass}">
-            <strong>${h.nama}</strong> - Angsuran ${formatRp(h.cicilan)} / ${h.jenis} 
-            (Jatuh Tempo: Tgl ${h.jatuhTempo}) ${isLewat ? '[JATUH TEMPO LEWAT]' : ''}
+            <div>
+                <strong>${h.nama}</strong> - Angsuran ${formatRp(h.cicilan)} / ${h.jenis} 
+                (Jatuh Tempo: Tgl ${h.jatuhTempo})
+            </div>
+            <span class="badge">${badgePeringatan}</span>
         </li>`;
     });
+
     html += '</ul>';
     container.innerHTML = html;
 }
