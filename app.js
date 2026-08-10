@@ -1,23 +1,27 @@
-// Struktur Data Utama (diambil dari LocalStorage jika ada)
+// Struktur Data Utama (termasuk array pengeluaranRutin)
 let dataKeuangan = JSON.parse(localStorage.getItem('DATA_KEUANGAN')) || {
     pemasukan: [],
     pengeluaran: [],
+    pengeluaranRutin: [],
     hutang: []
 };
 
-// Variabel penanda ID jika sedang dalam mode Edit Hutang
+// Pastikan properti pengeluaranRutin selalu ada
+if (!dataKeuangan.pengeluaranRutin) {
+    dataKeuangan.pengeluaranRutin = [];
+}
+
 let editHutangId = null;
 
-// Fungsi Simpan Data ke LocalStorage
 function simpanData() {
     localStorage.setItem('DATA_KEUANGAN', JSON.stringify(dataKeuangan));
     renderDashboard();
     renderTabelPemasukan();
     renderTabelPengeluaran();
+    renderTabelRutin();
     renderTabelHutang();
 }
 
-// Navigasi Tab
 function switchTab(tabName) {
     const tabs = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => tab.classList.remove('active'));
@@ -28,7 +32,6 @@ function switchTab(tabName) {
     }
 }
 
-// Format Angka ke Rupiah
 const formatRp = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
 
 // --- PROSES INPUT DATA ---
@@ -63,7 +66,22 @@ function tambahPengeluaran(e) {
     alert('Pengeluaran berhasil disimpan!');
 }
 
-// --- FUNGSI TAMBAH / EDIT HUTANG ---
+function tambahRutin(e) {
+    e.preventDefault();
+    const item = {
+        id: Date.now(),
+        tgl: document.getElementById('rutin-tgl').value,
+        unit: document.getElementById('rutin-unit').value,
+        periode: document.getElementById('rutin-periode').value,
+        ket: document.getElementById('rutin-ket').value,
+        jumlah: Number(document.getElementById('rutin-jumlah').value)
+    };
+    dataKeuangan.pengeluaranRutin.push(item);
+    document.getElementById('form-rutin').reset();
+    simpanData();
+    alert('Pengeluaran Rutin berhasil disimpan!');
+}
+
 function tambahHutang(e) {
     e.preventDefault();
     const pokok = Number(document.getElementById('hut-pokok').value);
@@ -72,7 +90,6 @@ function tambahHutang(e) {
     const persenBunga = Number(document.getElementById('hut-bunga').value) || 0;
     const periodeBunga = document.getElementById('hut-periode-bunga').value; 
 
-    // Kalkulasi Total Bunga berdasarkan Tenor dan Jenis Pinjaman
     let totalBunga = 0;
     if (periodeBunga === 'hari') {
         const totalHari = jenis === 'harian' ? tenor : tenor * 30;
@@ -89,7 +106,6 @@ function tambahHutang(e) {
     const cicilanPerPeriode = totalBayar / tenor;
 
     if (editHutangId !== null) {
-        // Mode Update Data
         const idx = dataKeuangan.hutang.findIndex(h => h.id === editHutangId);
         if (idx !== -1) {
             dataKeuangan.hutang[idx] = {
@@ -109,7 +125,6 @@ function tambahHutang(e) {
         document.querySelector('#form-hutang button[type="submit"]').textContent = 'Simpan Hutang';
         alert('Data Hutang Berhasil Diperbarui!');
     } else {
-        // Mode Tambah Baru
         const item = {
             id: Date.now(),
             nama: document.getElementById('hut-nama').value,
@@ -131,7 +146,6 @@ function tambahHutang(e) {
     simpanData();
 }
 
-// Mode Edit: Mengisi kembali form input dari data tabel
 function editHutang(id) {
     const item = dataKeuangan.hutang.find(h => h.id === id);
     if (!item) return;
@@ -147,11 +161,9 @@ function editHutang(id) {
     editHutangId = id;
     document.querySelector('#form-hutang button[type="submit"]').textContent = 'Update Data Hutang';
 
-    // Scroll otomatis ke form input
     document.getElementById('form-hutang').scrollIntoView({ behavior: 'smooth' });
 }
 
-// --- FUNGSI HAPUS & STATUS ---
 function hapusItem(kategori, id) {
     if (confirm('Yakin ingin menghapus data ini?')) {
         dataKeuangan[kategori] = dataKeuangan[kategori].filter(item => item.id !== id);
@@ -182,7 +194,15 @@ function renderDashboard() {
         }
     });
 
+    // Pengeluaran Umum
     dataKeuangan.pengeluaran.forEach(item => {
+        if (unitFilter === 'semua' || item.unit === unitFilter) {
+            totalPengeluaran += item.jumlah;
+        }
+    });
+
+    // Pengeluaran Rutin
+    dataKeuangan.pengeluaranRutin.forEach(item => {
         if (unitFilter === 'semua' || item.unit === unitFilter) {
             totalPengeluaran += item.jumlah;
         }
@@ -205,11 +225,11 @@ function renderDashboard() {
                     <p>${formatRp(totalPemasukan)}</p>
                 </div>
                 <div class="card pengeluaran">
-                    <h4>Total Pengeluaran</h4>
+                    <h4>Total Pengeluaran (Umum + Rutin)</h4>
                     <p>${formatRp(totalPengeluaran)}</p>
                 </div>
                 <div class="card saldo">
-                    <h4>Saldo Kas bersih</h4>
+                    <h4>Saldo Kas Bersih</h4>
                     <p>${formatRp(saldo)}</p>
                 </div>
                 <div class="card hutang">
@@ -234,7 +254,6 @@ function renderWarningJatuhTempo() {
         return;
     }
 
-    // Urutkan dari tanggal jatuh tempo paling dekat/cepat
     hutangAktif.sort((a, b) => new Date(a.jatuhTempo) - new Date(b.jatuhTempo));
 
     const hariIni = new Date();
@@ -313,6 +332,21 @@ function renderTabelPengeluaran() {
     `).join('');
 }
 
+function renderTabelRutin() {
+    const tbody = document.getElementById('tb-rutin');
+    if (!tbody) return;
+    tbody.innerHTML = dataKeuangan.pengeluaranRutin.map(r => `
+        <tr>
+            <td>${r.tgl}</td>
+            <td>${r.unit.toUpperCase()}</td>
+            <td><strong>${r.periode}</strong></td>
+            <td>${r.ket}</td>
+            <td>${formatRp(r.jumlah)}</td>
+            <td><button class="btn-hapus" onclick="hapusItem('pengeluaranRutin', ${r.id})">Hapus</button></td>
+        </tr>
+    `).join('');
+}
+
 function renderTabelHutang() {
     const tbody = document.getElementById('tb-hutang');
     if (!tbody) return;
@@ -334,7 +368,6 @@ function renderTabelHutang() {
     `).join('');
 }
 
-// Load saat halaman pertama dibuka
 document.addEventListener('DOMContentLoaded', () => {
     simpanData();
 });
