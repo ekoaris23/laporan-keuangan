@@ -28,14 +28,20 @@
             <div class="kategori-selector">
                 <label for="filter-usaha">Pilih Unit Usaha:</label>
                 <select id="filter-usaha" onchange="renderDashboard()">
-                    <option value="semua">Semua Usaha</option>
+                    <option value="semua">Semua Usaha & Pribadi</option>
                     <option value="taxi">Taxi Online</option>
                     <option value="service">Service Laptop</option>
                     <option value="spx">Driver SPX Express</option>
                     <option value="pribadi">Pengeluaran Pribadi / Dapur</option>
                 </select>
             </div>
+            
             <div id="ringkasan-kas"></div>
+
+            <div class="box-warning">
+                <h3>Peringatan Jatuh Tempo Hutang</h3>
+                <div id="peringatan-jatuh-tempo"></div>
+            </div>
         </section>
 
         <!-- Tab Pemasukan -->
@@ -56,7 +62,7 @@
                 </div>
                 <div class="form-group">
                     <label>Keterangan</label>
-                    <input type="text" id="in-ket-masuk" placeholder="Contoh: Pendapatan harian / Service unit HP" required>
+                    <input type="text" id="in-ket-masuk" placeholder="Contoh: Hasil narik / Oper servis laptop" required>
                 </div>
                 <div class="form-group">
                     <label>Jumlah (Rp)</label>
@@ -64,6 +70,20 @@
                 </div>
                 <button type="submit" class="btn-simpan">Simpan Pemasukan</button>
             </form>
+
+            <h3 class="title-tabel">Riwayat Pemasukan</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Unit</th>
+                        <th>Keterangan</th>
+                        <th>Jumlah</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tb-pemasukan"></tbody>
+            </table>
         </section>
 
         <!-- Tab Pengeluaran -->
@@ -94,7 +114,7 @@
                 </div>
                 <div class="form-group">
                     <label>Keterangan Detail</label>
-                    <input type="text" id="out-ket" placeholder="Contoh: Beli RAM DDR4 / Makan siang rider" required>
+                    <input type="text" id="out-ket" placeholder="Contoh: Beli Keyboard Laptop / Makan siang karyawan" required>
                 </div>
                 <div class="form-group">
                     <label>Jumlah (Rp)</label>
@@ -102,12 +122,60 @@
                 </div>
                 <button type="submit" class="btn-simpan">Simpan Pengeluaran</button>
             </form>
+
+            <h3 class="title-tabel">Riwayat Pengeluaran</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Unit/Kategori</th>
+                        <th>Keterangan</th>
+                        <th>Jumlah</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tb-pengeluaran"></tbody>
+            </table>
         </section>
 
         <!-- Tab Hutang -->
         <section id="hutang-tab" class="tab-content">
-            <h2>Pencatatan Hutang & Jatuh Tempo</h2>
-            <p>Fitur pencatatan utang, bunga, dan kalkulasi jatuh tempo akan aktif di tahap selanjutnya.</p>
+            <h2>Pencatatan Hutang & Bunga</h2>
+            <form id="form-hutang" onsubmit="tambahHutang(event)">
+                <div class="form-group">
+                    <label>Nama Pemberi Pinjaman / Kreditor</label>
+                    <input type="text" id="hut-nama" placeholder="Contoh: Bank A / Leasing Mobil / Perorangan" required>
+                </div>
+                <div class="form-group">
+                    <label>Pinjaman Pokok (Rp)</label>
+                    <input type="number" id="hut-pokok" required>
+                </div>
+                <div class="form-group">
+                    <label>Bunga (%)</label>
+                    <input type="number" id="hut-bunga" placeholder="Contoh: 5" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Jatuh Tempo</label>
+                    <input type="date" id="hut-tempo" required>
+                </div>
+                <button type="submit" class="btn-simpan">Simpan Hutang</button>
+            </form>
+
+            <h3 class="title-tabel">Daftar Hutang & Jatuh Tempo</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pemberi Pinjaman</th>
+                        <th>Pokok</th>
+                        <th>Bunga</th>
+                        <th>Total Bayar</th>
+                        <th>Jatuh Tempo</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tb-hutang"></tbody>
+            </table>
         </section>
     </main>
 
