@@ -1,10 +1,11 @@
-// Data Utama tersimpan di LocalStorage
+// Struktur Data Utama (diambil dari LocalStorage jika ada)
 let dataKeuangan = JSON.parse(localStorage.getItem('DATA_KEUANGAN')) || {
     pemasukan: [],
     pengeluaran: [],
     hutang: []
 };
 
+// Fungsi Simpan Data ke LocalStorage
 function simpanData() {
     localStorage.setItem('DATA_KEUANGAN', JSON.stringify(dataKeuangan));
     renderDashboard();
@@ -62,23 +63,45 @@ function tambahPengeluaran(e) {
 function tambahHutang(e) {
     e.preventDefault();
     const pokok = Number(document.getElementById('hut-pokok').value);
+    const jenis = document.getElementById('hut-jenis').value; // harian / bulanan
+    const tenor = Number(document.getElementById('hut-tenor').value);
     const persenBunga = Number(document.getElementById('hut-bunga').value) || 0;
-    const totalBunga = pokok * (persenBunga / 100);
+    const periodeBunga = document.getElementById('hut-periode-bunga').value; // hari / bulan / tahun
+
+    // Kalkulasi Total Bunga berdasarkan Tenor dan Jenis Pinjaman
+    let totalBunga = 0;
+    if (periodeBunga === 'hari') {
+        const totalHari = jenis === 'harian' ? tenor : tenor * 30;
+        totalBunga = pokok * (persenBunga / 100) * totalHari;
+    } else if (periodeBunga === 'bulan') {
+        const totalBulan = jenis === 'bulanan' ? tenor : tenor / 30;
+        totalBunga = pokok * (persenBunga / 100) * totalBulan;
+    } else if (periodeBunga === 'tahun') {
+        const totalTahun = jenis === 'bulanan' ? (tenor / 12) : (tenor / 365);
+        totalBunga = pokok * (persenBunga / 100) * totalTahun;
+    }
+
     const totalBayar = pokok + totalBunga;
+    const cicilanPerPeriode = totalBayar / tenor;
 
     const item = {
         id: Date.now(),
         nama: document.getElementById('hut-nama').value,
         pokok: pokok,
+        jenis: jenis,
+        tenor: tenor,
         persenBunga: persenBunga,
+        periodeBunga: periodeBunga,
+        cicilan: cicilanPerPeriode,
         totalBayar: totalBayar,
         jatuhTempo: document.getElementById('hut-tempo').value,
         status: 'Belum Lunas'
     };
+
     dataKeuangan.hutang.push(item);
     document.getElementById('form-hutang').reset();
     simpanData();
-    alert('Catatan Hutang berhasil disimpan!');
+    alert('Pencatatan Hutang Berhasil!');
 }
 
 // --- FUNGSI HAPUS DATA ---
@@ -170,8 +193,8 @@ function renderWarningJatuhTempo() {
         const isLewat = h.jatuhTempo < hariIni;
         const statusClass = isLewat ? 'text-bahaya' : 'text-peringatan';
         html += `<li class="${statusClass}">
-            <strong>${h.nama}</strong> - Total Rp ${h.totalBayar.toLocaleString('id-ID')} 
-            (Jatuh Tempo: ${h.jatuhTempo}) ${isLewat ? '[JATUH TEMPO LEWAT]' : ''}
+            <strong>${h.nama}</strong> - Angsuran ${formatRp(h.cicilan)} / ${h.jenis} 
+            (Jatuh Tempo: Tgl ${h.jatuhTempo}) ${isLewat ? '[JATUH TEMPO LEWAT]' : ''}
         </li>`;
     });
     html += '</ul>';
@@ -211,11 +234,13 @@ function renderTabelHutang() {
     if (!tbody) return;
     tbody.innerHTML = dataKeuangan.hutang.map(h => `
         <tr>
-            <td>${h.nama}</td>
+            <td><strong>${h.nama}</strong></td>
             <td>${formatRp(h.pokok)}</td>
-            <td>${h.persenBunga}% (${formatRp(h.totalBayar - h.pokok)})</td>
-            <td><strong>${formatRp(h.totalBayar)}</strong></td>
-            <td>${h.jatuhTempo}</td>
+            <td>${h.tenor}x (${h.jenis})</td>
+            <td>${h.persenBunga}% /${h.periodeBunga}</td>
+            <td><strong>${formatRp(h.cicilan)}</strong> /${h.jenis === 'harian' ? 'hari' : 'bulan'}</td>
+            <td>${formatRp(h.totalBayar)}</td>
+            <td>Tgl ${h.jatuhTempo}</td>
             <td><button onclick="ubahStatusHutang(${h.id})">${h.status}</button></td>
             <td><button class="btn-hapus" onclick="hapusItem('hutang', ${h.id})">Hapus</button></td>
         </tr>
