@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Keuangan Usaha</title>
-    <!-- Pemanggilan style.css versi 5.0 untuk membuang cache lama -->
-    <link rel="stylesheet" href="./style.css?v=5.0">
+    <!-- Pemanggilan style.css versi 6.0 untuk memperbarui cache -->
+    <link rel="stylesheet" href="./style.css?v=6.0">
 </head>
 <body>
     <header>
@@ -14,6 +14,7 @@
             <button type="button" onclick="switchTab('dashboard')">Dashboard</button>
             <button type="button" onclick="switchTab('pemasukan')">Pemasukan</button>
             <button type="button" onclick="switchTab('pengeluaran')">Pengeluaran</button>
+            <button type="button" onclick="switchTab('rutin')">Pengeluaran Rutin</button>
             <button type="button" onclick="switchTab('hutang')">Hutang & Jatuh Tempo</button>
         </nav>
     </header>
@@ -85,35 +86,27 @@
             </div>
         </section>
 
-        <!-- Tab Pengeluaran -->
+        <!-- Tab Pengeluaran Umun / Harian -->
         <section id="pengeluaran-tab" class="tab-content">
-            <h2>Input Pengeluaran</h2>
+            <h2>Input Pengeluaran Umum / Belanja</h2>
             <form id="form-pengeluaran" onsubmit="tambahPengeluaran(event)">
                 <div class="form-group">
                     <label for="out-tgl">Tanggal</label>
                     <input type="date" id="out-tgl" required>
                 </div>
                 <div class="form-group">
-                    <label for="out-unit">Kategori & Unit Usaha</label>
+                    <label for="out-unit">Unit Usaha / Peruntukan</label>
                     <select id="out-unit" required>
-                        <optgroup label="Bulanan / Operasional Usaha">
-                            <option value="service">Gaji Karyawan Service Laptop</option>
-                            <option value="spx">Gaji Rider SPX</option>
-                            <option value="taxi">BBM / Servis Mobil Taxi Online</option>
-                        </optgroup>
-                        <optgroup label="Harian Usaha">
-                            <option value="service">Belanja Sparepart Laptop</option>
-                            <option value="semua">ATK & Operasional Kantor</option>
-                            <option value="semua">Makanan Karyawan</option>
-                        </optgroup>
-                        <optgroup label="Pribadi / Rumah Tangga">
-                            <option value="pribadi">Uang Dapur Istri</option>
-                        </optgroup>
+                        <option value="service">Service Laptop (Sparepart/Alat)</option>
+                        <option value="taxi">Taxi Online (Servis/Odi)</option>
+                        <option value="spx">Driver SPX Express</option>
+                        <option value="semua">Operasional Umum</option>
+                        <option value="pribadi">Pengeluaran Pribadi / Dapur</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="out-ket">Keterangan Detail</label>
-                    <input type="text" id="out-ket" placeholder="Contoh: Belanja Sparepart / Makan Siang Karyawan" required>
+                    <input type="text" id="out-ket" placeholder="Contoh: Belanja Sparepart Laptop / Beli Oli Mobil" required>
                 </div>
                 <div class="form-group">
                     <label for="out-jumlah">Jumlah (Rp)</label>
@@ -122,7 +115,7 @@
                 <button type="submit" class="btn-simpan">Simpan Pengeluaran</button>
             </form>
 
-            <h3 class="title-tabel">Riwayat Pengeluaran</h3>
+            <h3 class="title-tabel">Riwayat Pengeluaran Umum</h3>
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -135,6 +128,61 @@
                         </tr>
                     </thead>
                     <tbody id="tb-pengeluaran"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Tab Pengeluaran Rutin -->
+        <section id="rutin-tab" class="tab-content">
+            <h2>Pengeluaran Rutin (Gaji, Bensin, Operasional)</h2>
+            <form id="form-rutin" onsubmit="tambahRutin(event)">
+                <div class="form-group">
+                    <label for="rutin-tgl">Tanggal Pembayaran</label>
+                    <input type="date" id="rutin-tgl" required>
+                </div>
+                <div class="form-group">
+                    <label for="rutin-unit">Unit Usaha / Pos Anggaran</label>
+                    <select id="rutin-unit" required>
+                        <option value="service">Service Laptop (Gaji Karyawan Laptop)</option>
+                        <option value="spx">Driver SPX Express (Gaji Rider SPX)</option>
+                        <option value="taxi">Taxi Online (Bensin / Uang Jalan)</option>
+                        <option value="semua">Operasional Rutin Kantor / Makan Karyawan</option>
+                        <option value="pribadi">Uang Dapur Istri / Rutin Rumah Tangga</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="rutin-periode">Periode Rutin</label>
+                    <select id="rutin-periode" required>
+                        <option value="Harian">Harian</option>
+                        <option value="Mingguan">Mingguan</option>
+                        <option value="Bulanan" selected>Bulanan</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="rutin-ket">Keterangan Pengeluaran Rutin</label>
+                    <input type="text" id="rutin-ket" placeholder="Contoh: Gaji Bulanan Karyawan Laptop / Bensin Bensin Harian SPX" required>
+                </div>
+                <div class="form-group">
+                    <label for="rutin-jumlah">Jumlah (Rp)</label>
+                    <input type="number" id="rutin-jumlah" required>
+                </div>
+                <button type="submit" class="btn-simpan">Simpan Pengeluaran Rutin</button>
+            </form>
+
+            <h3 class="title-tabel">Daftar Pengeluaran Rutin</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Unit</th>
+                            <th>Periode</th>
+                            <th>Keterangan</th>
+                            <th>Jumlah</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb-rutin"></tbody>
                 </table>
             </div>
         </section>
@@ -210,7 +258,7 @@
         </section>
     </main>
 
-    <!-- Pemanggilan app.js versi 5.0 untuk membuang cache lama -->
-    <script src="./app.js?v=5.0"></script>
+    <!-- Pemanggilan app.js versi 6.0 -->
+    <script src="./app.js?v=6.0"></script>
 </body>
 </html>
