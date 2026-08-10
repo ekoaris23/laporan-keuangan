@@ -6,12 +6,13 @@ let dataKeuangan = JSON.parse(localStorage.getItem('DATA_KEUANGAN')) || {
     hutang: []
 };
 
-// Pastikan properti pengeluaranRutin selalu ada
 if (!dataKeuangan.pengeluaranRutin) {
     dataKeuangan.pengeluaranRutin = [];
 }
 
+// Penanda ID untuk mode Edit
 let editHutangId = null;
+let editRutinId = null;
 
 function simpanData() {
     localStorage.setItem('DATA_KEUANGAN', JSON.stringify(dataKeuangan));
@@ -34,7 +35,7 @@ function switchTab(tabName) {
 
 const formatRp = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
 
-// --- PROSES INPUT DATA ---
+// --- PROSES INPUT / EDIT DATA ---
 
 function tambahPemasukan(e) {
     e.preventDefault();
@@ -66,20 +67,51 @@ function tambahPengeluaran(e) {
     alert('Pengeluaran berhasil disimpan!');
 }
 
+// Tambah / Update Pengeluaran Rutin
 function tambahRutin(e) {
     e.preventDefault();
-    const item = {
-        id: Date.now(),
-        tgl: document.getElementById('rutin-tgl').value,
-        unit: document.getElementById('rutin-unit').value,
-        periode: document.getElementById('rutin-periode').value,
-        ket: document.getElementById('rutin-ket').value,
-        jumlah: Number(document.getElementById('rutin-jumlah').value)
-    };
-    dataKeuangan.pengeluaranRutin.push(item);
+    const tgl = document.getElementById('rutin-tgl').value;
+    const unit = document.getElementById('rutin-unit').value;
+    const periode = document.getElementById('rutin-periode').value;
+    const ket = document.getElementById('rutin-ket').value;
+    const jumlah = Number(document.getElementById('rutin-jumlah').value);
+
+    if (editRutinId !== null) {
+        const idx = dataKeuangan.pengeluaranRutin.findIndex(r => r.id === editRutinId);
+        if (idx !== -1) {
+            dataKeuangan.pengeluaranRutin[idx] = {
+                ...dataKeuangan.pengeluaranRutin[idx],
+                tgl, unit, periode, ket, jumlah
+            };
+        }
+        editRutinId = null;
+        document.querySelector('#form-rutin button[type="submit"]').textContent = 'Simpan Pengeluaran Rutin';
+        alert('Pengeluaran Rutin berhasil diperbarui!');
+    } else {
+        const item = { id: Date.now(), tgl, unit, periode, ket, jumlah };
+        dataKeuangan.pengeluaranRutin.push(item);
+        alert('Pengeluaran Rutin berhasil disimpan!');
+    }
+
     document.getElementById('form-rutin').reset();
     simpanData();
-    alert('Pengeluaran Rutin berhasil disimpan!');
+}
+
+// Edit Pengeluaran Rutin
+function editRutin(id) {
+    const item = dataKeuangan.pengeluaranRutin.find(r => r.id === id);
+    if (!item) return;
+
+    document.getElementById('rutin-tgl').value = item.tgl;
+    document.getElementById('rutin-unit').value = item.unit;
+    document.getElementById('rutin-periode').value = item.periode;
+    document.getElementById('rutin-ket').value = item.ket;
+    document.getElementById('rutin-jumlah').value = item.jumlah;
+
+    editRutinId = id;
+    document.querySelector('#form-rutin button[type="submit"]').textContent = 'Update Pengeluaran Rutin';
+
+    document.getElementById('form-rutin').scrollIntoView({ behavior: 'smooth' });
 }
 
 function tambahHutang(e) {
@@ -194,14 +226,12 @@ function renderDashboard() {
         }
     });
 
-    // Pengeluaran Umum
     dataKeuangan.pengeluaran.forEach(item => {
         if (unitFilter === 'semua' || item.unit === unitFilter) {
             totalPengeluaran += item.jumlah;
         }
     });
 
-    // Pengeluaran Rutin
     dataKeuangan.pengeluaranRutin.forEach(item => {
         if (unitFilter === 'semua' || item.unit === unitFilter) {
             totalPengeluaran += item.jumlah;
@@ -240,7 +270,68 @@ function renderDashboard() {
         `;
     }
 
+    renderWarningRutin();
     renderWarningJatuhTempo();
+}
+
+// Render Peringatan Pengeluaran Rutin di Dashboard
+function renderWarningRutin() {
+    const container = document.getElementById('peringatan-rutin');
+    if (!container) return;
+
+    let rutinList = [...dataKeuangan.pengeluaranRutin];
+
+    if (rutinList.length === 0) {
+        container.innerHTML = '<p class="text-aman">TIDAK ADA JADWAL PENGELUARAN RUTIN.</p>';
+        return;
+    }
+
+    // Urutkan jadwal pengeluaran rutin terdekat
+    rutinList.sort((a, b) => new Date(a.tgl) - new Date(b.tgl));
+
+    const hariIni = new Date();
+    hariIni.setHours(0, 0, 0, 0);
+
+    let html = '<ul class="list-peringatan">';
+
+    rutinList.forEach(r => {
+        const tglJadwal = new Date(r.tgl);
+        tglJadwal.setHours(0, 0, 0, 0);
+
+        const selisihWaktu = tglJadwal - hariIni;
+        const selisihHari = Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24));
+
+        let statusClass = '';
+        let badgePeringatan = '';
+
+        if (selisihHari < 0) {
+            statusClass = 'status-merah';
+            badgePeringatan = `🚨 [JADWAL LEWAT ${Math.abs(selisihHari)} HARI]`;
+        } else if (selisihHari === 0) {
+            statusClass = 'status-merah';
+            badgePeringatan = '⚠️ [JADWAL PEMBAYARAN HARI INI]';
+        } else if (selisihHari <= 3) {
+            statusClass = 'status-merah';
+            badgePeringatan = `⚠️ [PEMBAYARAN ${selisihHari} HARI LAGI]`;
+        } else if (selisihHari <= 7) {
+            statusClass = 'status-kuning';
+            badgePeringatan = '⌛ [PEMBAYARAN SEMINGGU LAGI]';
+        } else {
+            statusClass = 'status-hijau';
+            badgePeringatan = `✅ [PEMBAYARAN ${selisihHari} HARI LAGI]`;
+        }
+
+        html += `<li class="${statusClass}">
+            <div>
+                <strong>${r.ket}</strong> (${r.periode}) - ${formatRp(r.jumlah)} 
+                (Jadwal: Tgl ${r.tgl})
+            </div>
+            <span class="badge">${badgePeringatan}</span>
+        </li>`;
+    });
+
+    html += '</ul>';
+    container.innerHTML = html;
 }
 
 function renderWarningJatuhTempo() {
@@ -342,7 +433,10 @@ function renderTabelRutin() {
             <td><strong>${r.periode}</strong></td>
             <td>${r.ket}</td>
             <td>${formatRp(r.jumlah)}</td>
-            <td><button class="btn-hapus" onclick="hapusItem('pengeluaranRutin', ${r.id})">Hapus</button></td>
+            <td>
+                <button class="btn-edit" onclick="editRutin(${r.id})">Edit</button>
+                <button class="btn-hapus" onclick="hapusItem('pengeluaranRutin', ${r.id})">Hapus</button>
+            </td>
         </tr>
     `).join('');
 }
