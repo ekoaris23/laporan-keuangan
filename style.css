@@ -1,55 +1,230 @@
-/* Styling Tabel */
-table {
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f6f9;
+    color: #333;
+    padding: 12px;
+}
+
+header {
+    background-color: #1e293b;
+    color: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+}
+
+/* Navigasi Tombol HP & Desktop */
+nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+nav button {
+    background-color: #334155;
+    color: #ffffff;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex: 1 1 calc(50% - 8px); /* 2 tombol per baris di layar HP kecil */
+    text-align: center;
+}
+
+nav button:hover, nav button:active {
+    background-color: #0284c7;
+}
+
+main {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Tab Switcher */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.kategori-selector {
+    margin-bottom: 15px;
+}
+
+.kategori-selector label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.kategori-selector select {
     width: 100%;
-    border-collapse: collapse;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.95rem;
+    background-color: #fff;
+}
+
+/* Dashboard Grid Cards dengan Warna Terang & Kontras */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
     margin-top: 15px;
 }
 
-table, th, td {
-    border: 1px solid #ddd;
+.card {
+    padding: 15px;
+    border-radius: 8px;
+    color: #ffffff;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+}
+
+.card h4 {
+    font-size: 0.8rem;
+    opacity: 0.95;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card p {
+    font-size: 1.15rem;
+    font-weight: bold;
+}
+
+.card.pemasukan { background: linear-gradient(135deg, #16a34a, #15803d); }
+.card.pengeluaran { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+.card.saldo { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+.card.hutang { background: linear-gradient(135deg, #d97706, #b45309); }
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+button.btn-simpan {
+    width: 100%;
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+button.btn-simpan:hover {
+    background-color: #15803d;
+}
+
+/* Pembungkus Tabel Agar Responsif & Bisa Di-scroll di HP */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 12px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 480px; /* Lebar minimal agar kolom tabel tidak terhimpit */
 }
 
 th, td {
-    padding: 10px;
+    padding: 10px 12px;
     text-align: left;
+    font-size: 0.85rem;
 }
 
 th {
     background-color: #f1f5f9;
+    color: #334155;
+    font-weight: 600;
+}
+
+tr:nth-child(even) {
+    background-color: #f8fafc;
 }
 
 .title-tabel {
-    margin-top: 30px;
-    margin-bottom: 10px;
+    margin-top: 25px;
+    font-size: 1.05rem;
 }
 
 .btn-hapus {
     background-color: #ef4444;
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 6px 10px;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 0.75rem;
 }
 
 /* Box Peringatan Jatuh Tempo */
 .box-warning {
-    margin-top: 30px;
+    margin-top: 25px;
     padding: 15px;
-    background-color: #fffbebfb;
+    background-color: #fffbeb;
     border: 1px solid #fef3c7;
-    border-radius: 6px;
+    border-radius: 8px;
 }
 
-.text-bahaya {
-    color: #dc2626;
-    font-weight: bold;
+.box-warning h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
 }
 
-.text-peringatan {
-    color: #d97706;
-}
+.text-bahaya { color: #dc2626; font-weight: bold; }
+.text-peringatan { color: #d97706; }
+.text-aman { color: #16a34a; }
 
-.text-aman {
-    color: #16a34a;
+/* Tampilan Layar Lebar / Laptop */
+@media (min-width: 640px) {
+    body { padding: 20px; }
+    header h1 { font-size: 1.6rem; }
+    nav button { flex: 0 1 auto; font-size: 0.95rem; }
+    .card p { font-size: 1.3rem; }
 }
