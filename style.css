@@ -25,7 +25,6 @@ header h1 {
     margin-bottom: 12px;
 }
 
-/* Navigasi Tombol HP & Desktop */
 nav {
     display: flex;
     flex-wrap: wrap;
@@ -57,17 +56,10 @@ main {
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-.tab-content {
-    display: none;
-}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
 
-.tab-content.active {
-    display: block;
-}
-
-.kategori-selector {
-    margin-bottom: 15px;
-}
+.kategori-selector { margin-bottom: 15px; }
 
 .kategori-selector label {
     display: block;
@@ -85,7 +77,6 @@ main {
     background-color: #fff;
 }
 
-/* Dashboard Grid Cards */
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -118,10 +109,7 @@ main {
 .card.saldo { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
 .card.hutang { background: linear-gradient(135deg, #d97706, #b45309); }
 
-/* Form Styling */
-.form-group {
-    margin-bottom: 12px;
-}
+.form-group { margin-bottom: 12px; }
 
 .form-group label {
     display: block;
@@ -151,11 +139,8 @@ button.btn-simpan {
     margin-top: 8px;
 }
 
-button.btn-simpan:hover {
-    background-color: #15803d;
-}
+button.btn-simpan:hover { background-color: #15803d; }
 
-/* Tabel Responsif */
 .table-responsive {
     width: 100%;
     overflow-x: auto;
@@ -183,14 +168,9 @@ th {
     font-weight: 600;
 }
 
-tr:nth-child(even) {
-    background-color: #f8fafc;
-}
+tr:nth-child(even) { background-color: #f8fafc; }
 
-.title-tabel {
-    margin-top: 25px;
-    font-size: 1.05rem;
-}
+.title-tabel { margin-top: 25px; font-size: 1.05rem; }
 
 .btn-edit {
     background-color: #0284c7;
@@ -203,10 +183,6 @@ tr:nth-child(even) {
     margin-right: 4px;
 }
 
-.btn-edit:hover {
-    background-color: #0369a1;
-}
-
 .btn-hapus {
     background-color: #ef4444;
     color: white;
@@ -217,25 +193,62 @@ tr:nth-child(even) {
     font-size: 0.75rem;
 }
 
-/* Box Peringatan Jatuh Tempo */
+.btn-dropdown {
+    background: transparent;
+    color: #2563eb;
+    border: none;
+    font-size: 0.78rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 2px 0;
+}
+
+.btn-bayar-sekarang {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.btn-bayar-sekarang:hover { background-color: #15803d; }
+
+.btn-batal-bayar {
+    background-color: #64748b;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.box-rincian {
+    padding: 12px;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    margin: 5px 0;
+}
+
+.box-rincian h4 { margin-bottom: 8px; font-size: 0.9rem; }
+
+.tabel-rincian { min-width: 100%; margin-top: 5px; }
+
+.status-lunas { color: #16a34a; font-weight: bold; }
+.status-belum { color: #dc2626; font-weight: bold; }
+
 .box-warning {
-    margin-top: 25px;
     padding: 15px;
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
 }
 
-.box-warning h3 {
-    font-size: 1rem;
-    margin-bottom: 12px;
-}
-
-/* Styling Peringatan Berwarna & Berurutan */
-.list-peringatan {
-    list-style: none;
-    padding: 0;
-}
+.list-peringatan { list-style: none; padding: 0; }
 
 .list-peringatan li {
     padding: 12px;
@@ -269,14 +282,8 @@ tr:nth-child(even) {
     border-left: 5px solid #16a34a;
 }
 
-.list-peringatan .badge {
-    font-size: 0.85rem;
-    font-weight: bold;
-}
-
 @media (min-width: 640px) {
     body { padding: 20px; }
     header h1 { font-size: 1.6rem; }
     nav button { flex: 0 1 auto; font-size: 0.95rem; }
-    .card p { font-size: 1.3rem; }
 }
