@@ -5,6 +5,9 @@ let dataKeuangan = JSON.parse(localStorage.getItem('DATA_KEUANGAN')) || {
     hutang: []
 };
 
+// Variabel penanda ID jika sedang dalam mode Edit Hutang
+let editHutangId = null;
+
 // Fungsi Simpan Data ke LocalStorage
 function simpanData() {
     localStorage.setItem('DATA_KEUANGAN', JSON.stringify(dataKeuangan));
@@ -28,7 +31,7 @@ function switchTab(tabName) {
 // Format Angka ke Rupiah
 const formatRp = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
 
-// --- TERTAMBAH: PROSES INPUT DATA ---
+// --- PROSES INPUT DATA ---
 
 function tambahPemasukan(e) {
     e.preventDefault();
@@ -60,13 +63,14 @@ function tambahPengeluaran(e) {
     alert('Pengeluaran berhasil disimpan!');
 }
 
+// --- FUNGSI TAMBAH / EDIT HUTANG ---
 function tambahHutang(e) {
     e.preventDefault();
     const pokok = Number(document.getElementById('hut-pokok').value);
-    const jenis = document.getElementById('hut-jenis').value; // harian / bulanan
+    const jenis = document.getElementById('hut-jenis').value; 
     const tenor = Number(document.getElementById('hut-tenor').value);
     const persenBunga = Number(document.getElementById('hut-bunga').value) || 0;
-    const periodeBunga = document.getElementById('hut-periode-bunga').value; // hari / bulan / tahun
+    const periodeBunga = document.getElementById('hut-periode-bunga').value; 
 
     // Kalkulasi Total Bunga berdasarkan Tenor dan Jenis Pinjaman
     let totalBunga = 0;
@@ -84,27 +88,70 @@ function tambahHutang(e) {
     const totalBayar = pokok + totalBunga;
     const cicilanPerPeriode = totalBayar / tenor;
 
-    const item = {
-        id: Date.now(),
-        nama: document.getElementById('hut-nama').value,
-        pokok: pokok,
-        jenis: jenis,
-        tenor: tenor,
-        persenBunga: persenBunga,
-        periodeBunga: periodeBunga,
-        cicilan: cicilanPerPeriode,
-        totalBayar: totalBayar,
-        jatuhTempo: document.getElementById('hut-tempo').value,
-        status: 'Belum Lunas'
-    };
+    if (editHutangId !== null) {
+        // Mode Update Data
+        const idx = dataKeuangan.hutang.findIndex(h => h.id === editHutangId);
+        if (idx !== -1) {
+            dataKeuangan.hutang[idx] = {
+                ...dataKeuangan.hutang[idx],
+                nama: document.getElementById('hut-nama').value,
+                pokok: pokok,
+                jenis: jenis,
+                tenor: tenor,
+                persenBunga: persenBunga,
+                periodeBunga: periodeBunga,
+                cicilan: cicilanPerPeriode,
+                totalBayar: totalBayar,
+                jatuhTempo: document.getElementById('hut-tempo').value
+            };
+        }
+        editHutangId = null;
+        document.querySelector('#form-hutang button[type="submit"]').textContent = 'Simpan Hutang';
+        alert('Data Hutang Berhasil Diperbarui!');
+    } else {
+        // Mode Tambah Baru
+        const item = {
+            id: Date.now(),
+            nama: document.getElementById('hut-nama').value,
+            pokok: pokok,
+            jenis: jenis,
+            tenor: tenor,
+            persenBunga: persenBunga,
+            periodeBunga: periodeBunga,
+            cicilan: cicilanPerPeriode,
+            totalBayar: totalBayar,
+            jatuhTempo: document.getElementById('hut-tempo').value,
+            status: 'Belum Lunas'
+        };
+        dataKeuangan.hutang.push(item);
+        alert('Pencatatan Hutang Berhasil!');
+    }
 
-    dataKeuangan.hutang.push(item);
     document.getElementById('form-hutang').reset();
     simpanData();
-    alert('Pencatatan Hutang Berhasil!');
 }
 
-// --- FUNGSI HAPUS DATA ---
+// Mode Edit: Mengisi kembali form input dari data tabel
+function editHutang(id) {
+    const item = dataKeuangan.hutang.find(h => h.id === id);
+    if (!item) return;
+
+    document.getElementById('hut-nama').value = item.nama;
+    document.getElementById('hut-pokok').value = item.pokok;
+    document.getElementById('hut-jenis').value = item.jenis;
+    document.getElementById('hut-tenor').value = item.tenor;
+    document.getElementById('hut-bunga').value = item.persenBunga;
+    document.getElementById('hut-periode-bunga').value = item.periodeBunga;
+    document.getElementById('hut-tempo').value = item.jatuhTempo;
+
+    editHutangId = id;
+    document.querySelector('#form-hutang button[type="submit"]').textContent = 'Update Data Hutang';
+
+    // Scroll otomatis ke form input
+    document.getElementById('form-hutang').scrollIntoView({ behavior: 'smooth' });
+}
+
+// --- FUNGSI HAPUS & STATUS ---
 function hapusItem(kategori, id) {
     if (confirm('Yakin ingin menghapus data ini?')) {
         dataKeuangan[kategori] = dataKeuangan[kategori].filter(item => item.id !== id);
@@ -242,7 +289,10 @@ function renderTabelHutang() {
             <td>${formatRp(h.totalBayar)}</td>
             <td>Tgl ${h.jatuhTempo}</td>
             <td><button onclick="ubahStatusHutang(${h.id})">${h.status}</button></td>
-            <td><button class="btn-hapus" onclick="hapusItem('hutang', ${h.id})">Hapus</button></td>
+            <td>
+                <button class="btn-edit" onclick="editHutang(${h.id})">Edit</button>
+                <button class="btn-hapus" onclick="hapusItem('hutang', ${h.id})">Hapus</button>
+            </td>
         </tr>
     `).join('');
 }
