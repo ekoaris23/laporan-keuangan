@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Laporan Keuangan Multi-Usaha</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Laporan Keuangan Usaha</h1>
+        <nav>
+            <button onclick="switchTab('dashboard')">Dashboard</button>
+            <button onclick="switchTab('pemasukan')">Pemasukan</button>
+            <button onclick="switchTab('pengeluaran')">Pengeluaran</button>
+            <button onclick="switchTab('hutang')">Hutang & Jatuh Tempo</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Area Konten Utama -->
+        <section id="dashboard-tab" class="tab-content active">
+            <h2>Dashboard Utama</h2>
+            <div class="kategori-selector">
+                <label for="filter-usaha">Pilih Unit Usaha:</label>
+                <select id="filter-usaha">
+                    <option value="semua">Semua Usaha</option>
+                    <option value="taxi">Taxi Online</option>
+                    <option value="service">Service Laptop</option>
+                    <option value="spx">Driver SPX Express</option>
+                    <option value="pribadi">Pengeluaran Pribadi / Dapur</option>
+                </select>
+            </div>
+            <div id="ringkasan-kas">
+                <p>Status aplikasi siap digunakan untuk tahap pengisian data.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
