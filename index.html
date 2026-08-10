@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Keuangan Usaha</title>
-    <!-- Pemanggilan style.css versi 6.0 untuk memperbarui cache -->
-    <link rel="stylesheet" href="./style.css?v=6.0">
+    <!-- Pemanggilan style.css versi 7.0 -->
+    <link rel="stylesheet" href="./style.css?v=7.0">
 </head>
 <body>
     <header>
@@ -86,7 +86,7 @@
             </div>
         </section>
 
-        <!-- Tab Pengeluaran Umun / Harian -->
+        <!-- Tab Pengeluaran Umum / Belanja -->
         <section id="pengeluaran-tab" class="tab-content">
             <h2>Input Pengeluaran Umum / Belanja</h2>
             <form id="form-pengeluaran" onsubmit="tambahPengeluaran(event)">
@@ -98,7 +98,7 @@
                     <label for="out-unit">Unit Usaha / Peruntukan</label>
                     <select id="out-unit" required>
                         <option value="service">Service Laptop (Sparepart/Alat)</option>
-                        <option value="taxi">Taxi Online (Servis/Odi)</option>
+                        <option value="taxi">Taxi Online (Servis/Oli)</option>
                         <option value="spx">Driver SPX Express</option>
                         <option value="semua">Operasional Umum</option>
                         <option value="pribadi">Pengeluaran Pribadi / Dapur</option>
@@ -160,7 +160,7 @@
                 </div>
                 <div class="form-group">
                     <label for="rutin-ket">Keterangan Pengeluaran Rutin</label>
-                    <input type="text" id="rutin-ket" placeholder="Contoh: Gaji Bulanan Karyawan Laptop / Bensin Bensin Harian SPX" required>
+                    <input type="text" id="rutin-ket" placeholder="Contoh: Gaji Bulanan Karyawan Laptop / Bensin Harian SPX" required>
                 </div>
                 <div class="form-group">
                     <label for="rutin-jumlah">Jumlah (Rp)</label>
@@ -258,7 +258,7 @@
         </section>
     </main>
 
-    <!-- Pemanggilan app.js versi 6.0 -->
-    <script src="./app.js?v=6.0"></script>
+    <!-- Pemanggilan app.js versi 7.0 untuk memastikan fungsi simpan terbaca -->
+    <script src="./app.js?v=7.0"></script>
 </body>
 </html>
