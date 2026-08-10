@@ -3,21 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Laporan Keuangan Multi-Usaha</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-    </style>
+    <title>Laporan Keuangan Usaha</title>
+    <!-- Pemanggilan CSS dengan penanda versi v=2.0 untuk memaksa HP memuat desain terbaru -->
+    <link rel="stylesheet" href="./style.css?v=2.0">
 </head>
 <body>
     <header>
         <h1>Laporan Keuangan Usaha</h1>
         <nav>
-            <button onclick="switchTab('dashboard')">Dashboard</button>
-            <button onclick="switchTab('pemasukan')">Pemasukan</button>
-            <button onclick="switchTab('pengeluaran')">Pengeluaran</button>
-            <button onclick="switchTab('hutang')">Hutang & Jatuh Tempo</button>
+            <button type="button" onclick="switchTab('dashboard')">Dashboard</button>
+            <button type="button" onclick="switchTab('pemasukan')">Pemasukan</button>
+            <button type="button" onclick="switchTab('pengeluaran')">Pengeluaran</button>
+            <button type="button" onclick="switchTab('hutang')">Hutang & Jatuh Tempo</button>
         </nav>
     </header>
 
@@ -49,11 +46,11 @@
             <h2>Input Pemasukan</h2>
             <form id="form-pemasukan" onsubmit="tambahPemasukan(event)">
                 <div class="form-group">
-                    <label>Tanggal</label>
+                    <label for="in-tgl-masuk">Tanggal</label>
                     <input type="date" id="in-tgl-masuk" required>
                 </div>
                 <div class="form-group">
-                    <label>Unit Usaha</label>
+                    <label for="in-unit-masuk">Unit Usaha</label>
                     <select id="in-unit-masuk" required>
                         <option value="taxi">Taxi Online</option>
                         <option value="service">Service Laptop</option>
@@ -61,29 +58,31 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Keterangan</label>
-                    <input type="text" id="in-ket-masuk" placeholder="Contoh: Hasil narik / Oper servis laptop" required>
+                    <label for="in-ket-masuk">Keterangan</label>
+                    <input type="text" id="in-ket-masuk" placeholder="Contoh: Pendapatan narik / Servis laptop" required>
                 </div>
                 <div class="form-group">
-                    <label>Jumlah (Rp)</label>
+                    <label for="in-jumlah-masuk">Jumlah (Rp)</label>
                     <input type="number" id="in-jumlah-masuk" required>
                 </div>
                 <button type="submit" class="btn-simpan">Simpan Pemasukan</button>
             </form>
 
             <h3 class="title-tabel">Riwayat Pemasukan</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>Unit</th>
-                        <th>Keterangan</th>
-                        <th>Jumlah</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="tb-pemasukan"></tbody>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Unit</th>
+                            <th>Keterangan</th>
+                            <th>Jumlah</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb-pemasukan"></tbody>
+                </table>
+            </div>
         </section>
 
         <!-- Tab Pengeluaran -->
@@ -91,11 +90,11 @@
             <h2>Input Pengeluaran</h2>
             <form id="form-pengeluaran" onsubmit="tambahPengeluaran(event)">
                 <div class="form-group">
-                    <label>Tanggal</label>
+                    <label for="out-tgl">Tanggal</label>
                     <input type="date" id="out-tgl" required>
                 </div>
                 <div class="form-group">
-                    <label>Kategori & Unit Usaha</label>
+                    <label for="out-unit">Kategori & Unit Usaha</label>
                     <select id="out-unit" required>
                         <optgroup label="Bulanan / Operasional Usaha">
                             <option value="service">Gaji Karyawan Service Laptop</option>
@@ -113,29 +112,31 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Keterangan Detail</label>
-                    <input type="text" id="out-ket" placeholder="Contoh: Beli Keyboard Laptop / Makan siang karyawan" required>
+                    <label for="out-ket">Keterangan Detail</label>
+                    <input type="text" id="out-ket" placeholder="Contoh: Belanja Sparepart / Makan Siang Karyawan" required>
                 </div>
                 <div class="form-group">
-                    <label>Jumlah (Rp)</label>
+                    <label for="out-jumlah">Jumlah (Rp)</label>
                     <input type="number" id="out-jumlah" required>
                 </div>
                 <button type="submit" class="btn-simpan">Simpan Pengeluaran</button>
             </form>
 
             <h3 class="title-tabel">Riwayat Pengeluaran</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>Unit/Kategori</th>
-                        <th>Keterangan</th>
-                        <th>Jumlah</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="tb-pengeluaran"></tbody>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Unit/Kategori</th>
+                            <th>Keterangan</th>
+                            <th>Jumlah</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb-pengeluaran"></tbody>
+                </table>
+            </div>
         </section>
 
         <!-- Tab Hutang -->
@@ -143,39 +144,41 @@
             <h2>Pencatatan Hutang & Bunga</h2>
             <form id="form-hutang" onsubmit="tambahHutang(event)">
                 <div class="form-group">
-                    <label>Nama Pemberi Pinjaman / Kreditor</label>
+                    <label for="hut-nama">Nama Pemberi Pinjaman</label>
                     <input type="text" id="hut-nama" placeholder="Contoh: Bank A / Leasing Mobil / Perorangan" required>
                 </div>
                 <div class="form-group">
-                    <label>Pinjaman Pokok (Rp)</label>
+                    <label for="hut-pokok">Pinjaman Pokok (Rp)</label>
                     <input type="number" id="hut-pokok" required>
                 </div>
                 <div class="form-group">
-                    <label>Bunga (%)</label>
+                    <label for="hut-bunga">Bunga (%)</label>
                     <input type="number" id="hut-bunga" placeholder="Contoh: 5" step="0.1">
                 </div>
                 <div class="form-group">
-                    <label>Tanggal Jatuh Tempo</label>
+                    <label for="hut-tempo">Tanggal Jatuh Tempo</label>
                     <input type="date" id="hut-tempo" required>
                 </div>
                 <button type="submit" class="btn-simpan">Simpan Hutang</button>
             </form>
 
             <h3 class="title-tabel">Daftar Hutang & Jatuh Tempo</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Pemberi Pinjaman</th>
-                        <th>Pokok</th>
-                        <th>Bunga</th>
-                        <th>Total Bayar</th>
-                        <th>Jatuh Tempo</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="tb-hutang"></tbody>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pemberi Pinjaman</th>
+                            <th>Pokok</th>
+                            <th>Bunga</th>
+                            <th>Total Bayar</th>
+                            <th>Jatuh Tempo</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb-hutang"></tbody>
+                </table>
+            </div>
         </section>
     </main>
 
